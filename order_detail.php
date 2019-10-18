@@ -51,7 +51,6 @@ if (isset($_POST["status"])){
 </table>
 <h1>Trạng thái : </h1>
 <form action="" method="post">
-
     <select name="status">
         <option <?php if ($ordersById[0]['Status'] == StatusConstant::SHIPPED): ?> selected<?php endif; ?>>
             Shipped

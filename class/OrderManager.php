@@ -1,5 +1,5 @@
 <?php
-include_once "class/StatusConstant.php";
+include_once "StatusConstant.php";
 
 class OrderManager implements StatusConstant
 {
@@ -67,4 +67,16 @@ class OrderManager implements StatusConstant
         $stmt->bindParam(":id", $id);
         $stmt->execute();
     }
+
+    public function delOrder($id)
+    {
+        $stmt = $this->connect->prepare("DELETE FROM `orderdetails` WHERE `orderNumber`=:id");
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
+        $stmt = $this->connect->prepare("DELETE FROM orders WHERE orderNumber=:id");
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
+
+    }
+
 }
