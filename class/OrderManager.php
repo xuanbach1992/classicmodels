@@ -1,7 +1,7 @@
 <?php
+include_once "class/StatusConstant.php";
 
-
-class OrderManager
+class OrderManager implements StatusConstant
 {
     protected $connect;
 
@@ -12,9 +12,9 @@ class OrderManager
     }
 
 
-    public function getAllOrder()
+    public function getOrderLimitPage($start, $limit)
     {
-        $sql = 'SELECT o.orderNumber AS "Order_Code",o.orderDate AS "Date_Order",o.shippedDate AS "Date_Shiper",o.status AS"Status" FROM orders o ';
+        $sql = "SELECT o.orderNumber AS 'Order_Code',o.orderDate AS 'Date_Order',o.shippedDate AS 'Date_Shiper',o.status AS'Status' FROM orders o  LIMIT $start, $limit";
         $stmt = $this->connect->query($sql);
         $list = $stmt->fetchAll();
         $listOrder = [];
@@ -33,17 +33,20 @@ class OrderManager
             o.status AS'Status',
             c.customerName AS 'Customer_name',
             c.contactLastName AS 'LastName', 
-                c.contactFirstName AS 'FirstName',
-            c.phone AS 'Phone',p.productName AS 'Name_Product',
-           p.productLine AS 'Name_cateroty',
-          od.quantityOrdered as'amount',
-          od.priceEach as 'price'
+            c.contactFirstName AS 'FirstName',
+            c.phone AS 'Phone',
+            p.productName AS 'Name_Product',
+            p.productLine AS 'Name_cateroty',
+            od.quantityOrdered as'amount',
+            od.priceEach as 'price'
             FROM orders o 
             INNER JOIN customers c ON c.customerNumber=o.customerNumber
             INNER JOIN orderdetails od ON od.orderNumber=o.orderNumber 
           	INNER JOIN products p ON p.productCode=od.productCode
-            WHERE o.orderNumber=$id";
-        $stmt = $this->connect->query($sql);
+            WHERE o.orderNumber=:id";
+        $stmt = $this->connect->prepare($sql);
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
         $list = $stmt->fetchAll();
 //        $detailOrder = [];
 //        $name=$list[0]['Customer_name'];
@@ -54,5 +57,14 @@ class OrderManager
 //            array_push($detailOrder, $order);
 //        }
         return $list;
+    }
+
+    public function updateStatus($id, $status)
+    {
+        $sql = "UPDATE orders SET status =:status WHERE orderNumber=:id";
+        $stmt = $this->connect->prepare($sql);
+        $stmt->bindParam(":status", $status);
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
     }
 }
